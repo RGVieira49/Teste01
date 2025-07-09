@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gráfico Interativo - Google Sheets</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+      let tipoAtual = 'ColumnChart';
+
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        const query = new google.visualization.Query(
+          'https://docs.google.com/spreadsheets/d/1hdFttp5OFCfiPWETvDlq8Dy-tnsANCWYZcoxUqlS2yo/gviz/tq?sheet=Página1'
+        );
+
+        query.send(function (response) {
+          const data = response.getDataTable();
+
+          const options = {
+            title: 'Vendas por Produto',
+            hAxis: { title: 'Mês' },
+            vAxis: { title: 'Quantidade Vendida' },
+            isStacked: false,
+            legend: { position: 'top', maxLines: 3 },
+            tooltip: { isHtml: true },
+            animation: {
+              duration: 1000,
+              easing: 'out',
+              startup: true
+            }
+          };
+
+          const container = document.getElementById('grafico');
+          let chart;
+
+          switch (tipoAtual) {
+            case 'PieChart':
+              chart = new google.visualization.PieChart(container);
+              break;
+            case 'LineChart':
+              chart = new google.visualization.LineChart(container);
+              break;
+            default:
+              chart = new google.visualization.ColumnChart(container);
+          }
+
+          chart.draw(data, options);
+        });
+      }
+
+      function trocarTipo(tipo) {
+        tipoAtual = tipo;
+        drawChart();
+      }
+
+      window.addEventListener('resize', drawChart);
+    </script>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 30px;
+      }
+      #grafico {
+        width: 100%;
+        height: 500px;
+      }
+      .botoes {
+        margin-bottom: 20px;
+      }
+      .botoes button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Dashboard de Vendas</h2>
+    <div class="botoes">
+      <button onclick="trocarTipo('ColumnChart')">Coluna</button>
+      <button onclick="trocarTipo('LineChart')">Linha</button>
+      <button onclick="trocarTipo('PieChart')">Pizza</button>
+    </div>
+    <div id="grafico"></div>
+  </body>
+</html>
